@@ -1,10 +1,10 @@
-USE cs332s26;
+USE cs332s27;
 
 DROP TABLE IF EXISTS POLICYHOLDER, INS_COMPANY_NAME, POLICIES, BALANCES, DRIVING_ACTIVITY, ADDITIONAL_DRIVERS;
 
 CREATE TABLE POLICYHOLDER(
-	CustomerID CHAR(7) UNIQUE NOT NULL,
-	Name VARCHAR(50),
+  CustomerID CHAR(7) UNIQUE NOT NULL,
+  Name VARCHAR(50),
   Date_of_Birth DATE,
   Phone_Number INT NOT NULL,
   Address VARCHAR(80),
@@ -21,10 +21,10 @@ CREATE TABLE INS_COMPANY_NAME(
 );
 
 CREATE TABLE POLICIES(
-	Policy_Number INT UNIQUE NOT NULL,
+  Policy_Number INT UNIQUE NOT NULL,
   CustomerID CHAR(7) NOT NULL,
   Policy_Type CHAR(4) NOT NULL,
-	CustSvc_PH INT NOT NULL,
+  CustSvc_PH INT NOT NULL,
   Start_date DATE,
   End_date DATE,
   Total_Premium INT,
@@ -34,7 +34,7 @@ CREATE TABLE POLICIES(
 );
 
 CREATE TABLE BALANCES(
-	Policy_Number INT NOT NULL,
+  Policy_Number INT NOT NULL,
   Total_Premium INT,
   Last_Payment_Date DATE,
   Current_Balance_Remaining INT,
@@ -43,7 +43,7 @@ CREATE TABLE BALANCES(
 );
 
 CREATE TABLE DRIVING_ACTIVITY(
-	CustomerID CHAR(7) NOT NULL,
+  CustomerID CHAR(7) NOT NULL,
   Violation_Type VARCHAR(30),
   Number_of_Points INT,
   Violation_Date DATE,
@@ -141,21 +141,29 @@ INSERT INTO ADDITIONAL_DRIVERS VALUES ("P370124", "Timothy Spanner", '2004-11-01
 INSERT INTO ADDITIONAL_DRIVERS VALUES ("P654321", "Jennifer Tam",'2005-08-19');
 INSERT INTO ADDITIONAL_DRIVERS VALUES ("P000001", "Tanner Bout", '2002-03-11');
 
-# VIEWS
+--  VIEWS
 
-# Bill Summary for Customer
+-- Bill Summary for Customer
 CREATE VIEW BALANCE_VIEW AS
-SELECT POLICIES.CustomerID, Name, Policy_Type, Current_Balance_Remaining
+SELECT  Name, Policy_Type, Current_Balance_Remaining, Last_Payment_Date
 FROM BALANCES, POLICIES, POLICYHOLDER
-WHERE BALANCES.Policy_Number = POLICIES.Policy_Number and POLICIES.CustomerID = POLICYHOLDER.CustomerID;
+WHERE BALANCES.Policy_Number = POLICIES.Policy_Number and POLICIES.CustomerID = POLICYHOLDER.CustomerID
+ORDER BY Current_Balance_Remaining DESC;
 
 SELECT * FROM BALANCE_VIEW;
 
-
-# Customer driving record
+ -- Customer driving record
 CREATE VIEW DRIVING_RECORDS AS
 SELECT Name, Violation_Type, Number_of_Points
 FROM DRIVING_ACTIVITY, POLICYHOLDER
 WHERE DRIVING_ACTIVITY.CustomerID = POLICYHOLDER.CustomerID;
 
 SELECT * FROM DRIVING_RECORDS;
+
+-- Check Which Policies the customer has
+CREATE VIEW CUSTOMER_POLICY AS
+SELECT Name, POLICYHOLDER.CustomerID, Policy_Type
+FROM POLICYHOLDER, POLICIES
+WHERE POLICYHOLDER.CustomerID = POLICIES.CustomerID;
+
+SELECT * FROM CUSTOMER_POLICY;
